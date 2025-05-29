@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <title>Welcome to Our Mart</title>
+    <style>
+      body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+background: linear-gradient(315deg, rgba(101,0,94,1) 3%, rgba(60,132,206,1) 38%, rgba(48,238,226,1) 68%, rgba(255,25,25,1) 98%);
+animation: gradient 15s ease infinite;
+background-size: 400% 400%;
+background-attachment: fixed;
+background-color: #d2fcd4;
+}
+@keyframes gradient {
+0% {
+background-position: 0% 0%;
+}
+50% {
+background-position: 100% 100%;
+}
+100% {
+background-position: 0% 0%;
+}
+}
+.wave {
+background: rgb(255 255 255 / 25%);
+border-radius: 1000% 1000% 0 0;
+position: fixed;
+width: 200%;
+height: 12em;
+animation: wave 10s -3s linear infinite;
+transform: translate3d(0, 0, 0);
+opacity: 0.8;
+bottom: 0;
+left: 0;
+z-index: -1;
+}
+
+.wave:nth-of-type(2) {
+bottom: -1.25em;
+animation: wave 18s linear reverse infinite;
+opacity: 0.8;
+}
+
+.wave:nth-of-type(3) {
+bottom: -2.5em;
+animation: wave 20s -1s reverse infinite;
+opacity: 0.9;
+}
+
+@keyframes wave {
+2% {
+transform: translateX(1);
+}
+
+25% {
+transform: translateX(-25%);
+}
+
+50% {
+transform: translateX(-50%);
+}
+
+75% {
+transform: translateX(-25%);
+}
+
+100% {
+transform: translateX(1);
+}
+}
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+font-family: 'Montserrat', sans-serif;
+font-weight: 700;
+font-size: 50px;
+line-height: 1.2;
+color: transparent;
+-webkit-text-stroke: 2px #333333;
+}
+
+#capture-btn {
+padding: 14px 64px;
+background-color: transparent;
+color: #ffffff;
+font-size: x-large;
+text-decoration: none;
+border-radius: 5px;
+cursor: pointer;
+border: none;
+margin-left:2rem;
+margin-top:3rem;
+transition: transform 0.3s ease;
+box-shadow: 0 0 10px rgba(0.3, 0.3, 0.3, 0.7);
+}
+#capture-btn:hover{
+transform: scale(1.1);
+}
+#video-container{
+display:flex;
+flex-direction:coloumn;
+justify-content: space-around;
+margin-top:4rem;
+}
+.video-container{
+display:flex;}
+
+#sum{
+display:flex;
+margin-top:3rem;
+font-size:34px;
+justify-content: center; 
+align-items: center;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+</style>
+</head>
+<body>
+ <div>
+     <div class="wave"></div>
+     <div class="wave"></div>
+     <div class="wave"></div>
+  </div>
+<div class="container">
+            <h1>Cashierless Counter</h1>
+    </div>
+
+  <div class="center">
+            <div id="video-container" >
+                <video id="video" width="640" height="480" style="height: 450px; width: 600px;border-radius: 10%;box-shadow: 0 0 10px rgba(0.3, 0.3, 0.3, 0.7);display: none;"></video>
+            <img id="processed-image" src="{{image_path}}" style="height: 450px; width: 600px;border-radius: 10%;box-shadow: 0 0 10px rgba(0.3, 0.3, 0.3, 0.7);">
+            </div>
+            <canvas id="canvas" style="display: none;"></canvas>
+  </div>
+
+     <div class="center">
+          <button id="capture-btn" onclick="toggleCapture()">Capture Image</button>
+      </div>
+    </div>
+
+    <div id="sum" style="display:none">
+       <span class="text_file">The total payable amount for your item is   <span class="output" style="font-weight: bold;font-size: 34px;
+"></span></span>
+        </div>
+  <script>var Output_box=document.getElementById('sum');
+    function OnCallOutput(consoleOutput){
+  
+      Output_box.style.display="flex";
+      console.log(consoleOutput[0]);
+           var sum = document.querySelector('.output');
+          var output=0;
+          javascript_variable=consoleOutput;
+          for (var i = 0; i < javascript_variable.length; i++) {
+      output += javascript_variable[i] === 2? 40 :
+                javascript_variable[i] === 1 ? 10 :
+                javascript_variable[i] === 0 ? 30 :
+                0;}
+                console.log(output);
+                sum.textContent = "   "+output;
+  }
+     // Get video element
+  const video = document.getElementById('video');
+  const captureBtn = document.getElementById('capture-btn');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const processedImage = document.getElementById('processed-image');
+  let isCameraOpen = false;
+  
+  // Access the camera stream
+  function openCamera() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+
+        processedImage.style.display = 'none';
+        video.style.display = 'block';
+        video.srcObject = stream;
+        video.play();
+        isCameraOpen = true;
+        captureBtn.textContent = 'Capture';
+      })
+      .catch((error) => {
+        console.error('Error accessing the camera: ', error);
+      });
+  }
+  
+  // Capture frame and stop camera
+  function captureImage() {
+    // Set canvas size to match video dimensions
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+  
+    // Pause the video stream
+    video.pause();
+  
+    // Draw the current frame from the video onto the canvas
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+    // Convert the canvas image to base64 data URL
+    const dataURL = canvas.toDataURL('image/jpeg');
+    console.log(dataURL);
+  
+    // Stop the camera stream
+    const stream = video.srcObject;
+    const tracks = stream.getTracks();
+    tracks.forEach(track => track.stop());
+  
+    // Send the image data to the Flask server
+    fetch('/process-image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ image: dataURL }),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+      console.log(result);
+        // Display the processed image on the webpage
+        const timestamp = Date.now(); // Cache-busting parameter
+        processedImage.src = result.processed_image + '?t=' + timestamp;
+        video.style.display = 'none';
+        processedImage.style.display = 'block';
+        captureBtn.textContent = 'Capture';
+        captureBtn.disabled = false;
+        OnCallOutput(result.output);
+  
+      })
+      .catch((error) => {
+        console.error('Error processing the image:', error);
+      });
+  }
+  // Toggle camera capture
+  function toggleCapture() {
+    if (!isCameraOpen) {
+    Output_box.style.display="none";
+      openCamera();
+      captureBtn.textContent = 'Capture';
+    } else {
+      captureBtn.disabled = true; // Disable the capture button during processing
+      captureBtn.textContent = 'Processing...';
+      captureImage();
+      isCameraOpen = false;
+    }
+  }
+  </script>
+</body>
+</html>
