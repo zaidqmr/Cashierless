@@ -3,8 +3,8 @@ import QRCode from 'qrcode.react';
 import './modal.css';
 
 const UPIQRCode = ({ amount }) => {
-  const upi="shlok08@ybl"
-  const name="Shlok"
+  const upi="mohdquamar@fbl"
+  const name="Zaid"
   //const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&am=${encodeURIComponent(amount)}`;
   const upiUrl=`upi://pay?pa=${upi}&pn=${name}&am=${amount}&cu=INR`;
   return (
